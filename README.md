@@ -1,4 +1,11 @@
-### Algorytm Dijkstry z wykorzystaniem biblioteki pygame
+# Algorytm Dijkstry z wykorzystaniem biblioteki pygame
+
+## Jak włączyć projekt
+
+1. Pobierz repozytorium lub sklonuj je
+2. Skompiluj plik dijkstra.py poprzez wpisanie w terminal komendy: python dijkstra.py
+
+## Opis projektu
 
 Celem mojego projektu było zaimplementowanie algorytmu Dijkstry w pythonie. Dodatkowo zdecydowałem się użyć biblioteki pygame, w celu przystępnej dla oka wizualizacji działania algorytmu. 
 
