@@ -132,9 +132,10 @@ terrain = [(11, 6), (12, 6), (13, 6), (14, 6), (15, 6), (10, 7), (11, 7), (12, 7
 for tile in terrain:
     g.weights[tile] = 15
 
-goal = vec(14, 12) #współrzędne pola docelowego
-start = vec(20, 0) #współrzędne pola startowego 
-path = dijkstra_search(g, goal, start) #ścieżka dojścia ze start do goal
+goal = vec(14, 12)
+#start = vec(16,9)
+start = vec(20, 0)
+path = dijkstra_search(g, goal, start)
 
 running = True
 while running:
@@ -143,16 +144,13 @@ while running:
         if event.type == pg.QUIT:
             running = False
 
-    #rysowanie pól, odwiedzonych w algorytmie Dijkstry
     for node in path:
         x, y = node
         rect = pg.Rect(x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE)
         pg.draw.rect(screen, DARKGREEN, rect)
-    #rysowanie pozostałych pól, ktore nie byly odwiedzone przez algorytm Dijkstry
     draw_grid()
     g.draw()
 
-    #znajdowanie współrzędnych kolejnych pól po których się poruszamy i rysowanie ich - pola ze ścieżki
     current = start + path[vec2int(start)]
     while current != goal:
         x = current.x * TILESIZE + TILESIZE / 2

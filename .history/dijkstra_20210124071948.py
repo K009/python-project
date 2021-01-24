@@ -152,7 +152,6 @@ while running:
     draw_grid()
     g.draw()
 
-    #znajdowanie współrzędnych kolejnych pól po których się poruszamy i rysowanie ich - pola ze ścieżki
     current = start + path[vec2int(start)]
     while current != goal:
         x = current.x * TILESIZE + TILESIZE / 2

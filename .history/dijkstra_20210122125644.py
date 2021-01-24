@@ -3,7 +3,6 @@ from os import path
 import heapq
 vec = pg.math.Vector2
 
-#rozmiar pól ich wymiary oraz zdefiniowanie kolorów
 TILESIZE = 30
 GRIDWIDTH = 28
 GRIDHEIGHT = 15
@@ -30,7 +29,6 @@ class SquareGrid:
     def in_bounds(self, node):
         return 0 <= node.x < self.width and 0 <= node.y < self.height
 
-    #znajdowanie sąsiadów danego pola 
     def find_neighbors(self, node):
         neighbors = [node + connection for connection in self.connections]
         neighbors = filter(self.in_bounds, neighbors)
@@ -42,14 +40,12 @@ class WeightedGrid(SquareGrid):
         super().__init__(width, height)
         self.weights = {}
 
-    #wyliczanie kosztów przejścia na dane pole, korzystamu tu z wektorów zdefiniowanych w SquareGrid
     def cost(self, from_node, to_node):
         if (vec(to_node) - vec(from_node)).length_squared() == 1:
             return self.weights.get(to_node, 0) + 10 # linia prosta
         else:
             return self.weights.get(to_node, 0) + 14 # ukos
 
-    #funkcja odpowiedzialna za rysowanie 'jeziora'
     def draw(self):
         for tile in self.weights:
             x, y = tile
@@ -69,14 +65,12 @@ class PriorityQueue:
     def empty(self):
         return len(self.nodes) == 0
 
-#rysuowanie całej siatki naszej gry, oryginalne wymiary zmieniane w zmiennych zdefiniowanych powyżej
 def draw_grid():
     for x in range(0, WIDTH, TILESIZE):
         pg.draw.line(screen, LIGHTGRAY, (x, 0), (x, HEIGHT))
     for y in range(0, HEIGHT, TILESIZE):
         pg.draw.line(screen, LIGHTGRAY, (0, y), (WIDTH, y))
 
-#rysowanie ikony startu oraz celu
 def draw_icons():
     start_center = (goal.x * TILESIZE + TILESIZE / 2, goal.y * TILESIZE + TILESIZE / 2)
     screen.blit(home_img, home_img.get_rect(center=start_center))
@@ -109,32 +103,31 @@ def dijkstra_search(graph, start, end):
                 path[next] = vec(current) - vec(next) #wyliczona sciezka. obecne pole - kolejne
     return path
 
-#definiujemy ikony i elementy potrzebne pygame'owi
 icon_dir = path.join(path.dirname(__file__), 'images')
 home_img = pg.image.load(path.join(icon_dir, 'castle.png')).convert_alpha()
 home_img = pg.transform.scale(home_img, (50, 50))
 grass_img = pg.image.load(path.join(icon_dir, 'grass.jpg')).convert_alpha()
 grass_img = pg.transform.scale(home_img, (50, 50))
+#home_img.fill((0, 255, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
 cross_img = pg.image.load(path.join(icon_dir, 'dragon.png')).convert_alpha()
 cross_img = pg.transform.scale(cross_img, (50, 50))
+#cross_img.fill((255, 0, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
 arrows = {}
 arrow_img = pg.image.load(path.join(icon_dir, 'arrowRight.png')).convert_alpha()
 arrow_img = pg.transform.scale(arrow_img, (50, 50))
-
-#obracamy strzałki, w zależności od wektora
 for dir in [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]:
     arrows[dir] = pg.transform.rotate(arrow_img, vec(dir).angle_to(vec(1, 0)))
 
-#defniniujemy tutaj położenie 'jeziora', czyli pól których koszt przejścia wynosi 15
 g = WeightedGrid(GRIDWIDTH, GRIDHEIGHT)
 terrain = [(11, 6), (12, 6), (13, 6), (14, 6), (15, 6), (10, 7), (11, 7), (12, 7), (13, 7), (14, 7), (15, 7), (16, 7), (16, 8), (15, 8), (14, 8), (13, 8), (12, 8), (11, 8), (10, 8), (11, 9), (12, 9), (13, 9), (14, 9), (15, 9), (11, 10), (12, 10), (13, 10), (14, 10), (15, 10), (12, 11), (13, 11), (14, 11), (12, 5), (13, 5), (14, 5), (11, 5), (15, 5), (12, 4), (13, 4), (14, 4)]
-
+# terrain = []
 for tile in terrain:
     g.weights[tile] = 15
 
-goal = vec(14, 12) #współrzędne pola docelowego
-start = vec(20, 0) #współrzędne pola startowego 
-path = dijkstra_search(g, goal, start) #ścieżka dojścia ze start do goal
+goal = vec(14, 12)
+start = vec(16,9)
+#start = vec(20, 0)
+path = dijkstra_search(g, goal, start)
 
 running = True
 while running:
@@ -143,16 +136,14 @@ while running:
         if event.type == pg.QUIT:
             running = False
 
-    #rysowanie pól, odwiedzonych w algorytmie Dijkstry
+    # fill explored area
     for node in path:
         x, y = node
         rect = pg.Rect(x * TILESIZE, y * TILESIZE, TILESIZE, TILESIZE)
         pg.draw.rect(screen, DARKGREEN, rect)
-    #rysowanie pozostałych pól, ktore nie byly odwiedzone przez algorytm Dijkstry
-    draw_grid()
+    #draw_grid()
     g.draw()
-
-    #znajdowanie współrzędnych kolejnych pól po których się poruszamy i rysowanie ich - pola ze ścieżki
+    # draw path from start to goal
     current = start + path[vec2int(start)]
     while current != goal:
         x = current.x * TILESIZE + TILESIZE / 2
@@ -160,7 +151,7 @@ while running:
         img = arrows[vec2int(path[(current.x, current.y)])]
         r = img.get_rect(center=(x, y))
         screen.blit(img, r)
-
+        # find next in path
         current = current + path[vec2int(current)]
     draw_icons()
     pg.display.flip()
